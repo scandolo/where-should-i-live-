@@ -29,7 +29,7 @@ RECOMMEND_ENDPOINT_URL = f"{API_BASE_URL}/recommend-countries"
 st.set_page_config(
     page_title="Where Should I Live?",
     page_icon="🌍",
-    layout="wide"
+    #layout="wide"
 )
 
 # --- UI Setup ---
@@ -171,4 +171,3 @@ if st.button("🎯 Find My Ideal Country", use_container_width=True):
         st.error(f"HTTP error: Received a {e.response.status_code} status code from the recommendation service.")
     except requests.exceptions.RequestException as e:
         st.error(f"Network error: An unexpected error occurred. ({e})")
-

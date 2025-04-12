@@ -3,72 +3,83 @@ import plotly.express as px
 import pandas as pd
 import os
 import pycountry
-import json
 
-st.set_page_config(page_title="About - Where Should I Live?", page_icon="🌍", layout="wide")
+st.set_page_config(page_title="Where Should I Live?", page_icon="🌍",
+                   #layout="wide"
+                   )
 
-# Function to get real countries data from our dataset
+# Function to get countries data from the real dataset
 def get_countries_data():
-    # Load the real dataset
-    try:
-        df = pd.read_csv("final_merged_dataset_with_knn.csv")
+    # Path to the real dataset
+    real_dataset = "final_merged_dataset_with_knn.csv"
+    
+    if os.path.exists(real_dataset):
+        # Load the real dataset
+        df = pd.read_csv(real_dataset)
         
-        # Clean up the data
-        # The first column seems to be country names but has no header - rename it
-        df = df.rename(columns={df.columns[0]: "country"})
+        # Extract country names (first column, index=0)
+        countries = df.iloc[:, 0].tolist()
         
-        # Add ISO code for mapping
-        countries_with_iso = []
-        
-        # Dictionary for country name mapping to ISO
-        name_to_iso = {
-            'united states': 'USA', 'united kingdom': 'GBR', 'russia': 'RUS',
-            'south korea': 'KOR', 'congo': 'COD',  # Assuming this is Democratic Republic of Congo
-            'ivory coast': 'CIV', 'myanmar': 'MMR', 'taiwan': 'TWN',
-            'bosnia & herzegovina': 'BIH', 'north macedonia': 'MKD',
-            'trinidad & tobago': 'TTO', 'hong kong': 'HKG', 'turkey': 'TUR'
-        }
-        
-        for country_name in df['country']:
-            try:
-                # Try direct lookup first
-                if country_name in name_to_iso:
-                    iso = name_to_iso[country_name]
-                else:
-                    # Otherwise try pycountry
-                    country = pycountry.countries.search_fuzzy(country_name)[0]
-                    iso = country.alpha_3
+        # Create a mapping dictionary for country names to ISO codes
+        iso_map = {}
+        for country in pycountry.countries:
+            iso_map[country.name.lower()] = country.alpha_3
+            # Add some common variations
+            if country.name.lower() == "united states of america":
+                iso_map["united states"] = country.alpha_3
+            elif country.name.lower() == "united kingdom":
+                iso_map["uk"] = country.alpha_3
+            elif country.name.lower() == "russian federation":
+                iso_map["russia"] = country.alpha_3
+            
+        # Function to get ISO code for a country name
+        def get_iso_code(country_name):
+            # Try to get the code directly
+            country_name = country_name.lower()
+            if country_name in iso_map:
+                return iso_map[country_name]
+            
+            # Try to find the closest match
+            for name, code in iso_map.items():
+                if country_name in name or name in country_name:
+                    return code
+            
+            # Some manual mappings for special cases
+            special_cases = {
+                "congo": "COG",
+                "ivory coast": "CIV",
+                "czech republic": "CZE",
+                "united kingdom": "GBR",
+                "united states": "USA",
+                "russia": "RUS",
+                "south korea": "KOR",
+                "north korea": "PRK"
+            }
+            
+            if country_name in special_cases:
+                return special_cases[country_name]
                 
-                countries_with_iso.append({
-                    "country": country_name.title(),
-                    "iso_alpha_3": iso,
-                    "has_data": True
-                })
-            except (LookupError, IndexError):
-                # If country not found, still add it but mark the ISO as unknown
-                print(f"Could not find ISO code for {country_name}")  # Use print instead of st.warning
-                countries_with_iso.append({
-                    "country": country_name.title(),
-                    "iso_alpha_3": "Unknown",
-                    "has_data": False
-                })
+            # If no match is found
+            print(f"No ISO code found for: {country_name}")
+            return None
         
-        # Create a dataframe with ISO codes
-        countries_df = pd.DataFrame(countries_with_iso)
+        # Map country names to ISO codes
+        iso_codes = [get_iso_code(country) for country in countries]
         
-        # Filter out any duplicate countries
-        countries_df = countries_df.drop_duplicates(subset=['country'])
+        # Create a new dataframe with the country names and ISO codes
+        countries_df = pd.DataFrame({
+            'country': countries,
+            'iso_alpha_3': iso_codes
+        })
         
-        # Only keep rows with valid ISO codes
-        countries_df = countries_df[countries_df['iso_alpha_3'] != "Unknown"]
+        # Remove rows with None in iso_alpha_3
+        countries_df = countries_df.dropna(subset=['iso_alpha_3'])
         
         return countries_df
-        
-    except Exception as e:
-        st.error(f"Error loading country data: {e}")
-        
-        # Fallback to empty dataframe
-        return pd.DataFrame(columns=["country", "iso_alpha_3", "has_data"])
+    else:
+        st.error(f"Dataset file '{real_dataset}' not found. Please check the file path.")
+        # Return empty dataframe if file not found
+        return pd.DataFrame(columns=['country', 'iso_alpha_3'])
 
 # Page title
 st.title("About 'Where Should I Live?'")
@@ -94,48 +105,50 @@ Then we match you with countries that best fit your unique requirements, using r
 
 ## 📊 Our Data
 
-Our database includes comprehensive information on **151 countries** worldwide, covering all developed nations and many more. All recommendations are based on actual data, not opinions or stereotypes.
+Our database includes comprehensive information on **155 countries** worldwide, covering all developed nations and many more. All recommendations are based on actual data, not opinions or stereotypes.
 """)
 
 # Interactive Map
 st.markdown("## 🗺️ Countries in Our Database")
 
+# Get the real country data
 countries_df = get_countries_data()
 
 # Create the Choropleth map with Plotly
-if not countries_df.empty:
-    fig = px.choropleth(
-        countries_df,
-        locations="iso_alpha_3",
-        color="has_data",
-        hover_name="country",
-        color_discrete_map={True: "green", False: "lightgray"},
-        labels={"has_data": "Included in Database"},
-        title=f"Countries Included in Our Database ({len(countries_df)} total)"
+fig = px.choropleth(
+    countries_df,
+    locations="iso_alpha_3",
+    color_discrete_sequence=["green"],
+    hover_name="country",
+    title="Countries Included in Our Database"
+)
+
+fig.update_layout(
+    geo=dict(
+        showframe=False,
+        showcoastlines=True,
+        projection_type='natural earth'
     )
-    
-    fig.update_layout(
-        coloraxis_showscale=False,  # No need for legend since all countries are included
-        geo=dict(
-            showframe=False,
-            showcoastlines=True,
-            projection_type='natural earth'
-        )
-    )
-    
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.error("Could not generate map - no country data available")
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# Display country count
+st.info(f"Our dataset includes {len(countries_df)} countries from around the world.")
 
 # Additional Info
 st.markdown("""
-## 👥 Creators
+## 👥 The Team
 
-This project was created by students of the Le Wagon Data Science & AI bootcamp batch #1835 who wanted to build something useful that combines data science with a real-world application.
+This project was created by students of the Le Wagon Data Science & AI bootcamp who wanted to build something useful that combines data science with real-world application.
 
+## 🛠️ Technology
 
+- **Backend**: Python-based recommendation algorithm with data analysis
+- **Frontend**: Streamlit interactive web interface
+- **Data Sources**: Multiple reliable international databases on cost of living, climate, healthcare, safety, and internet infrastructure
 """)
 
 # Footer
 st.markdown("---")
-st.markdown("© 2025 Where Should I Live") 
+st.markdown("© 2023 Where Should I Live") 
