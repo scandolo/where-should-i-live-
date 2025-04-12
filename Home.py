@@ -146,7 +146,7 @@ if st.button("🎯 Find My Ideal Country", use_container_width=True):
                         feature_score_percent = (float(feature_score) or 0) * 100
 
                         st.text(f"{label}: {feature_score_percent:.0f}%")
-                        st.progress(float(feature_score or 0))
+                        #st.progress(float(feature_score or 0))
 
         elif isinstance(results, list) and not results:
             st.info("No countries found matching your criteria. Try adjusting your preferences or budget.")
