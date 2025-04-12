@@ -139,14 +139,8 @@ st.markdown("""
 ## 👥 The Team
 
 This project was created by students of the Le Wagon Data Science & AI bootcamp who wanted to build something useful that combines data science with real-world application.
-
-## 🛠️ Technology
-
-- **Backend**: Python-based recommendation algorithm with data analysis
-- **Frontend**: Streamlit interactive web interface
-- **Data Sources**: Multiple reliable international databases on cost of living, climate, healthcare, safety, and internet infrastructure
 """)
 
 # Footer
 st.markdown("---")
-st.markdown("© 2023 Where Should I Live") 
+st.markdown("© 2025 Where Should I Live") 
