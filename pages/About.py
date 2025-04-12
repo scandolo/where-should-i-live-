@@ -105,7 +105,7 @@ Then we match you with countries that best fit your unique requirements, using r
 
 ## 📊 Our Data
 
-Our database includes comprehensive information on **155 countries** worldwide, covering all developed nations and many more. All recommendations are based on actual data, not opinions or stereotypes.
+Our database includes comprehensive information on **152 countries** worldwide, covering all developed nations and many more. All recommendations are based on actual data, not opinions or stereotypes.
 """)
 
 # Interactive Map
@@ -133,8 +133,6 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# Display country count
-st.info(f"Our dataset includes {len(countries_df)} countries from around the world.")
 
 # Additional Info
 st.markdown("""

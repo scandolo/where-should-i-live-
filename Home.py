@@ -44,22 +44,22 @@ continent_options = {
     "Any": None, "Africa": "AF", "Asia": "AS", "Europe": "EU",
     "North America": "NA", "Oceania": "OC", "South America": "SA"
 }
-continent_key = st.selectbox("Select Continent", options=list(continent_options.keys()), index=0)
+continent_key = st.selectbox("Filter by Continent", options=list(continent_options.keys()), index=0)
 selected_continent = continent_options[continent_key]
 st.write("")
 
 # Climate / Temperature
-st.subheader("🌡️ Climate / Temperature")
+st.subheader("🌡️ Climate")
 temperature_options = ["Cold", "Mild", "Hot"]
 climate_preference = st.select_slider(
-    "Preferred Temperature", options=temperature_options, value="Mild"
+    "What's your ideal temperature?", options=temperature_options, value="Mild"
 ).lower()
-climate_importance = st.slider("Importance", 0, 10, 5, key="climate_importance")
+climate_importance = st.slider("How important is climate to you?", 0, 10, 5, key="climate_importance")
 st.write("")
 
 # Cost of Living
 st.subheader("💰 Cost of Living")
-cost_of_living_importance = st.slider("Importance", 0, 10, 5, key="cost_importance")
+cost_of_living_importance = st.slider("How important is having a low cost of living to you?", 0, 10, 5, key="cost_importance")
 max_monthly_budget = st.number_input(
     "Optional: Max Monthly Budget (in USD)", min_value=0, value=0, step=100
 )
@@ -69,17 +69,17 @@ st.write("")
 
 # Healthcare
 st.subheader("🏥 Healthcare")
-healthcare_importance = st.slider("Importance", 0, 10, 5, key="health_importance")
+healthcare_importance = st.slider("How important is having good healthcare to you?", 0, 10, 5, key="health_importance")
 st.write("")
 
 # Safety
 st.subheader("🛡️ Safety")
-safety_importance = st.slider("Importance", 0, 10, 5, key="safety_importance")
+safety_importance = st.slider("How important is having a safe environment to you?", 0, 10, 5, key="safety_importance")
 st.write("")
 
 # Internet Speed
 st.subheader("🌐 Internet Speed")
-internet_speed_importance = st.slider("Importance", 0, 10, 5, key="internet_importance")
+internet_speed_importance = st.slider("How important is having a fast internet speed to you?", 0, 10, 5, key="internet_importance")
 st.write("")
 
 # --- API Call and Results ---
