@@ -1,0 +1,5 @@
+streamlit>=1.26.0
+requests>=2.31.0
+pandas>=2.0.0
+plotly>=5.15.0
+pycountry>=22.3.5 

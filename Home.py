@@ -12,6 +12,7 @@ The frontend displays:
     - Importance rating sliders for each factor
     - Optional maximum monthly budget input
     - Results section showing the top matching countries with scores
+    - About page explaining the project with an interactive map (accessed via navigation)
 """
 
 import streamlit as st
@@ -24,7 +25,14 @@ import os
 API_BASE_URL = os.getenv("API_URL", "https://project-ics-10-apr-600927923332.europe-west1.run.app") 
 RECOMMEND_ENDPOINT_URL = f"{API_BASE_URL}/recommend-countries"
 
-# --- UI Setup --- 
+# --- Set Page Configuration ---
+st.set_page_config(
+    page_title="Where Should I Live?",
+    page_icon="🌍",
+    layout="wide"
+)
+
+# --- UI Setup ---
 st.title("🌍 Find Your Dream Country to Live!")
 st.write("")
 
@@ -163,3 +171,4 @@ if st.button("🎯 Find My Ideal Country", use_container_width=True):
         st.error(f"HTTP error: Received a {e.response.status_code} status code from the recommendation service.")
     except requests.exceptions.RequestException as e:
         st.error(f"Network error: An unexpected error occurred. ({e})")
+
