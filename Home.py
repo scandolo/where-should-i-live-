@@ -111,11 +111,11 @@ if st.button("🎯 Find My Ideal Country", use_container_width=True):
         if isinstance(results, list) and results:
             # Define feature keys expected from API and their display labels/icons
             feature_display_map = {
-                'average_monthly_cost_$': '💰 Cost of Living',
-                'average_yearly_temperature': '🌡️ Temperature',
-                'internet_speed_mbps': '🌐 Internet Speed',
-                'safety_index': '🛡️ Safety',
-                'Healthcare Index': '🏥 Healthcare'
+                'average_monthly_cost_$': '💰 Cost of Living Match',
+                'average_yearly_temperature': '🌡️ Temperature Match',
+                'internet_speed_mbps': '🌐 Internet Speed Match',
+                'safety_index': '🛡️ Safety Match',
+                'Healthcare Index': '🏥 Healthcare Match'
             }
 
             for i, country_data in enumerate(results, 1):
@@ -133,28 +133,20 @@ if st.button("🎯 Find My Ideal Country", use_container_width=True):
                     st.progress(float(overall_score or 0))
                     st.markdown("**Detailed Scores:**")
 
-                    # Use columns for factor scores based on the number of features
+                    # Display features vertically (one on top of each other)
                     feature_items = list(feature_display_map.items())
-                    num_features = len(feature_items)
-                    cols = st.columns(num_features) # Create columns for each feature
+                    
+                    for feature_key, label in feature_items:
+                        # Construct the expected match score key
+                        match_score_key = f"{feature_key}_match_score"
+                        feature_score = country_data.get(match_score_key, 0)
+                        # Handle potential 'N/A' string
+                        if isinstance(feature_score, str) and feature_score == 'N/A':
+                            feature_score = 0
+                        feature_score_percent = (float(feature_score) or 0) * 100
 
-                    for idx, (feature_key, label) in enumerate(feature_items):
-                        with cols[idx]:
-                            # Construct the expected match score key
-                            match_score_key = f"{feature_key}_match_score"
-                            feature_score = country_data.get(match_score_key, 0)
-                            # Handle potential 'N/A' string
-                            if isinstance(feature_score, str) and feature_score == 'N/A':
-                                feature_score = 0
-                            feature_score_percent = (float(feature_score) or 0) * 100
-
-                            # Get original value and delta for display (optional, could add tooltips)
-                            # original_val = country_data.get(f"{feature_key}_original", "N/A")
-                            # delta = country_data.get(f"{feature_key}_delta", "N/A")
-                            # tooltip_text = f"Value: {original_val} (Delta: {delta:.1f})"
-
-                            st.text(f"{label}: {feature_score_percent:.0f}%")
-                            st.progress(float(feature_score or 0))
+                        st.text(f"{label}: {feature_score_percent:.0f}%")
+                        st.progress(float(feature_score or 0))
 
         elif isinstance(results, list) and not results:
             st.info("No countries found matching your criteria. Try adjusting your preferences or budget.")
